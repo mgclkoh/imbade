@@ -6,8 +6,11 @@
 #define rbuttonPin D3   //D3포트는 button포트
 #define gbuttonPin D4
 
-char *ssidSTA = "TP-Link_5069";   // 외부 공유기 이름 지정
-char *passSTA = "64170305";   //공유기 비밀번호 지정
+//char *ssidSTA = "TP-Link_5069";   // 외부 공유기 이름 지정
+//char *passSTA = "64170305";   //공유기 비밀번호 지정
+
+char *ssidSTA = "KT_GiGA_2G_Wave2_A95E";   // 외부 공유기 이름 지정
+char *passSTA = "fxa50kk735";   //공유기 비밀번호 지정
 
 bool b_red_current;   //rbutton의 현재상태 변수
 bool b_red_old = true;   //rbutton의 과거상태 변수
@@ -36,15 +39,6 @@ void setup() {
   Serial.println("");
   Serial.println("==== project: midterm exam : two button ====");
   Serial.println("====Made by kmc, 2020041018 1반====");
-/*
- //====AP mode====
-  Serial.println();
-  Serial.print("Maling Access Point");   //출력 후 줄 안 바꿀거임
-  Serial.println(ssidAP);   //공유기 이름의 ip만드는 중이다
-  WiFi.softAP(ssidAP, passAP);   //소프트웨어에서 wifi공유기 생성(->ip주소 할당)
-  Serial.print("AP's IP address:");
-  Serial.println(WiFi.softAPIP());   //할당받은 IP주소를 읽어 프린트하겠다.
-*/
  //====STATION mode====
  Serial.println();
  Serial.print("Connecting to ");
@@ -72,10 +66,10 @@ void setup() {
   //===web server구현
   //---Event 처리함수 설정
   webserver.on("/", handleRoot);  //공인IP주소 들어오면 handleRoot에 붙인다
-  //webserver.onNotFound(handleNotFound);
-  //webserver.on("/mc", handleMainControl);  //main control링크 클릭시 handleMainContrl호출
+  webserver.onNotFound(handleNotFound);
+  webserver.on("/mc", handleMainControl);  //main control링크 클릭시 handleMainContrl호출
   webserver.on("/on",handleON);
-  //webserver.on("/off",handleOFF);
+  webserver.on("/off",handleOFF);
   //webserver.on("/led.cgi", handleONOFF);
   //webserver.on("/ledbrightness.cgi", handleBrightControl);   //밝기 조절 버튼 제어
   //webserver.on("/ledbright", handleBrightness);   //밝기조절 페이지 가기
@@ -230,14 +224,14 @@ void loop() {
     webserver.sendHeader("Refresh", "1");
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
-  void handleON() {
+ void handleON() {
     for(uint8_t i=0; i<webserver.args(); i++) {
-      if(webserver.argName(i) == "on?") {
-        if(webserver.arg(i) == "led=r") {
+      if(webserver.argName(i) == "led") {
+        if(webserver.arg(i) == "r") {
           //red
           digitalWrite(rledPin, HIGH);
           rledState = digitalRead(rledPin);
-        } else if(webserver.arg(i) == "led=g") {
+        } else if(webserver.arg(i) == "g") {
            //green
           digitalWrite(gledPin, HIGH);
           gledState = digitalRead(gledPin);
@@ -278,12 +272,12 @@ void loop() {
 //off
  void handleOFF() {
     for(uint8_t i=0; i<webserver.args(); i++) {
-      if(webserver.argName(i) == "off?") {
-        if(webserver.arg(i) == "led=r") {
+      if(webserver.argName(i) == "led") {
+        if(webserver.arg(i) == "r") {
           //red
           digitalWrite(rledPin, LOW);
           rledState = digitalRead(rledPin);
-        } else if(webserver.arg(i) == "led=g") {
+        } else if(webserver.arg(i) == "g") {
            //green
           digitalWrite(gledPin, LOW);
           gledState = digitalRead(gledPin);
@@ -322,7 +316,7 @@ void loop() {
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
 
-  /*
+  
   void handleNotFound() {
     String message = "";
     message += "404\n";
@@ -382,8 +376,9 @@ void loop() {
     message += "<br>";
     message += "<h1 style='background-color:grey;color:white'>";
     message += "GET방식으로 보내기";
-    message += "</h1>";
     message += "<input type=\"submit\" value=\"보내기\">";
+    message += "</h1>";
+    //message += "<input type=\"submit\" value=\"보내기\">";
     message += "</form>";
     message += "</p>";
     //post
@@ -391,14 +386,14 @@ void loop() {
     //red
     message += "<form method=\"post\" action=\"/led.cgi\">";  //get방식으로 보낸후 url뒤에 /led.cgi붙여라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"1\">REDled Turn ON!";  //radio button클릭시 /led.cgi?/Rledstatus=1 붙여 보내라.
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"1\">REDled Turn ON!";  //radio button클릭시 /led.cgi 붙여 보내라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"0\">REDled Turn OFF!";  //radio button클릭시 /led.cgi?/Rledstatus=0 붙여 보내라.
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"0\">REDled Turn OFF!";  //radio button클릭시 /led.cgi 붙여 보내라.
     //green
     message += "<br>";
-    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"1\">GREENled Turn ON!";  //radio button클릭시 /led.cgi?/Gledstatus=1 붙여 보내라.
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"1\">GREENled Turn ON!";  //radio button클릭시 /led.cgi 붙여 보내라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi?/Gledstatus=0 붙여 보내라.
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi 붙여 보내라.
     
     message += "<br>";
     message += "<h1 style='background-color:grey;color:white'>";
@@ -409,13 +404,15 @@ void loop() {
     message += "</p>";
     
     message += "<a href=\"/\">Go to Home Page</a>";    
+    message += "<br>";
+    message += "<a href=\"/ledbrightness\">Go to Bright Control Page</a>";
     message += "</body>";
     message += "</html>";
 
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
   void handleONOFF() {
-    if(webserver.argName(0) == "Rledstatus") {
+    if(webserver.argName(0) == "rLEDcontrol") {
       int state = webserver.arg(0).toInt();   //문자열로 들어온 전달인수값을 정수형으로
       if(state) {   //1일시에는 불을 켜라
         digitalWrite(rledPin, HIGH);
@@ -424,8 +421,8 @@ void loop() {
       }
     }
     rledState = digitalRead(rledPin); //현재상태 가지고옴
-
-    if(webserver.argName(0) == "Gledstatus") {
+    
+    if(webserver.argName(0) == "gLEDcontrol") {
       int state = webserver.arg(0).toInt();   //문자열로 들어온 전달인수값을 정수형으로
       if(state) {   //1일시에는 불을 켜라
         digitalWrite(gledPin, HIGH);
@@ -452,18 +449,21 @@ void loop() {
     message += "GREENled 현재 상태:";
     message += String(gledState);
     message += (gledState)? "[ON]":"[OFF]";  //1이면 ON 0이면 0FF
-    message += "</h2>";1
+    message += "</h2>";
     message += "<br>";
     message += "<a href=\"/\">Go to Home Page</a>";  //홈페이지 가는 링크추가
     message += "<br>";
-    message += "<a href=\"/mc\">Go to Main Control</a>";  //mc로 가는 링크
+    message += "<a href=\"/mc\">Go to MainControl Page</a>";  //mc로 가는 링크
+    message += "<br>";
+    message += "<a href=\"/ledbrightness\">Go to Bright Control Page</a>";
     
     message += "</body>";
     message += "</html>";
 
     
     webserver.send(200, "text/html; charset=utf-8", message);
-  }    
+  } 
+  /*   
   void handleBrightness() {
     showBrightnessPage();
   }

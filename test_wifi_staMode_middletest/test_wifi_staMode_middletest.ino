@@ -275,73 +275,54 @@ void loop() {
 
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
- 
-
-    
-  /*
-  void handleOFF() {
-    digitalWrite(rledPin, LOW);
-    rledState = digitalRead(rledPin);
-    
-    String message = "";
-    message += "LED 제어 후 상태:";
-    message += String(rledState);
-    message += (rledState)? "[켜짐]":"[꺼짐]";
-
-    webserver.send(200, "text/plain; charset=utf-8", message);
-    
+//off
+ void handleOFF() {
+    for(uint8_t i=0; i<webserver.args(); i++) {
+      if(webserver.argName(i) == "off?") {
+        if(webserver.arg(i) == "led=r") {
+          //red
+          digitalWrite(rledPin, LOW);
+          rledState = digitalRead(rledPin);
+        } else if(webserver.arg(i) == "led=g") {
+           //green
+          digitalWrite(gledPin, LOW);
+          gledState = digitalRead(gledPin);
+        }
+      }
+      //if(webser "gledbright"
+    }
     String message ="";
     message += "<html>";
     message += "<head>";
     message += "</head>";
     message += "<body>";
     message += "<p>";
-    message += "<h3 style='background-color:red;color:white'>";
+    message += "<h1 style='background-color:green;color:white'>";
+    message += "===LED 제어 후 상태===";
+    message += "</h1>";
+    //red
+    message += "<h3>";
     message += "REDled 제어 후 상태";
-    message += "</h3>";
     message += String(rledState);
-    message += (rledState)? "[켜짐]":"[꺼짐]";
+    message += (rledState)? "[on]":"[off]";
     message += "</h3>";
-    message += "</p>";
-    message += "<a href=\"/\">Go to Home Page</a>";    
-    message += "</body>";
-    message += "</html>";
-
-    webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
-  }
-
-    void handleOFF() {
-    digitalWrite(gledPin, LOW);
-    gledState = digitalRead(gledPin);
-    
-    String message = "";
-    message += "LED 제어 후 상태:";
-    message += String(rledState);
-    message += (rledState)? "[켜짐]":"[꺼짐]";
-
-    webserver.send(200, "text/plain; charset=utf-8", message);
-    
-    String message ="";
-    message += "<html>";
-    message += "<head>";
-    message += "</head>";
-    message += "<body>";
-    message += "<p>";
-    message += "<h3 style='background-color:green;color:white'>";
+    //green
+    message += "<h3>";
     message += "GREENled 제어 후 상태";
-    message += "</h3>";
     message += String(gledState);
-    message += (gledState)? "[켜짐]":"[꺼짐]";
+    message += (gledState)? "[on]":"[off]";
     message += "</h3>";
     message += "</p>";
-    message += "<a href=\"/\">Go to Home Page</a>";    
+    
+    
+    message += "<a href=\"/\">Go to Home Page</a>";       
     message += "</body>";
     message += "</html>";
 
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
-  
 
+  /*
   void handleNotFound() {
     String message = "";
     message += "404\n";
@@ -365,6 +346,9 @@ void loop() {
     message += "<head>";
     message += "</head>";
     message += "<body>";
+    message += "<h1 style='background-color:green;color:white'>";
+    message += "===LED ON/OFF 상태===";
+    message += "</h1>";
     //red
     message += "<h2>";
     message += "REDled 현재 상태";
@@ -376,23 +360,50 @@ void loop() {
     message += "GREENled 현재 상태";
     message += String(gledState);
     message += (gledState)? "[on]":"[off]";
-    message += "</h2>";
+    message += "</h2>";   
+    message += "<h1 style='background-color:red;color:white'>";
+    message += "===LED ON/OFF 제어===";
+    message += "</h1>";
     //Paragraph
+    //get
     message += "<p>";
     //red
-    message += "<form method=\"get\" action=\"/rled.cgi\">";  //get방식으로 보낸후 url뒤에 /rled.cgi붙여라.
+    message += "<form method=\"get\" action=\"/led.cgi\">";  //get방식으로 보낸후 url뒤에 /led.cgi붙여라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"Rledstatus\" value=\"1\">RED Turn ON!";  //radio button클릭시 /rled.cgi?/Rledstatus=1 붙여 보내라.
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"1\">REDled Turn ON!";  //radio button클릭시 /led.cgi?/Rledstatus=1 붙여 보내라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"Rledstatus\" value=\"0\">RED Turn OFF!";  //radio button클릭시 /rled.cgi?/Rledstatus=0 붙여 보내라.
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"0\">REDled Turn OFF!";  //radio button클릭시 /led.cgi?/Rledstatus=0 붙여 보내라.
     //green
-    message += "<form method=\"get\" action=\"/gled.cgi\">";  //get방식으로 보낸후 url뒤에 /rled.cgi붙여라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"Gledstatus\" value=\"1\">GREEN Turn ON!";  //radio button클릭시 /gled.cgi?/Gledstatus=1 붙여 보내라.
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"1\">GREENled Turn ON!";  //radio button클릭시 /led.cgi?/Gledstatus=1 붙여 보내라.
     message += "<br>";
-    message += "<input type=\"radio\" name=\"Gledstatus\" value=\"0\">GREEN Turn OFF!";  //radio button클릭시 /gled.cgi?/Gledstatus=0 붙여 보내라.
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi?/Gledstatus=0 붙여 보내라.
     
     message += "<br>";
+    message += "<h1 style='background-color:grey;color:white'>";
+    message += "GET방식으로 보내기";
+    message += "</h1>";
+    message += "<input type=\"submit\" value=\"보내기\">";
+    message += "</form>";
+    message += "</p>";
+    //post
+    message += "<p>";
+    //red
+    message += "<form method=\"post\" action=\"/led.cgi\">";  //get방식으로 보낸후 url뒤에 /led.cgi붙여라.
+    message += "<br>";
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"1\">REDled Turn ON!";  //radio button클릭시 /led.cgi?/Rledstatus=1 붙여 보내라.
+    message += "<br>";
+    message += "<input type=\"radio\" name=\"rLEDcontrol\" value=\"0\">REDled Turn OFF!";  //radio button클릭시 /led.cgi?/Rledstatus=0 붙여 보내라.
+    //green
+    message += "<br>";
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"1\">GREENled Turn ON!";  //radio button클릭시 /led.cgi?/Gledstatus=1 붙여 보내라.
+    message += "<br>";
+    message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi?/Gledstatus=0 붙여 보내라.
+    
+    message += "<br>";
+    message += "<h1 style='background-color:grey;color:white'>";
+    message += "POST방식으로 보내기";
+    message += "</h1>";
     message += "<input type=\"submit\" value=\"보내기\">";
     message += "</form>";
     message += "</p>";
@@ -441,7 +452,7 @@ void loop() {
     message += "GREENled 현재 상태:";
     message += String(gledState);
     message += (gledState)? "[ON]":"[OFF]";  //1이면 ON 0이면 0FF
-    message += "</h2>";
+    message += "</h2>";1
     message += "<br>";
     message += "<a href=\"/\">Go to Home Page</a>";  //홈페이지 가는 링크추가
     message += "<br>";

@@ -26,8 +26,8 @@ int tempMin = -10;
 int humiMax = 30;
 int humiMin = -30;
 String endDeviceIP;   //esp8266의 ip주소
-int rledBrightness = 0;  //red:0~255쓰기위해 밝기 전역변수선언
-int gledBrightness = 0;  //green:0~255쓰기위해 밝기 전역변수선언
+int rbrightness = 0;  //red:0~255쓰기위해 밝기 전역변수선언
+int gbrightness = 0;  //green:0~255쓰기위해 밝기 전역변수선언
 
 //===Web server 객체생성
 ESP8266WebServer webserver(80); //  http://서버IP주소:80/
@@ -70,9 +70,9 @@ void setup() {
   webserver.on("/mc", handleMainControl);  //main control링크 클릭시 handleMainContrl호출
   webserver.on("/on",handleON);
   webserver.on("/off",handleOFF);
-  //webserver.on("/led.cgi", handleONOFF);
-  //webserver.on("/ledbrightness.cgi", handleBrightControl);   //밝기 조절 버튼 제어
-  //webserver.on("/ledbright", handleBrightness);   //밝기조절 페이지 가기
+  webserver.on("/led.cgi", handleONOFF);
+  webserver.on("/ledbrightness.cgi", handleBrightControl);   //밝기 조절 버튼 제어
+  webserver.on("/ledbright", handleBrightness);   //밝기조절 페이지 가기
   //===Web server start!
   webserver.begin();
   Serial.println("Web server started!");
@@ -173,6 +173,7 @@ void loop() {
     message += "</br>";
     message += "<a href=\"/off?led=g\"> Control Gled OFF </a>";  
     message += "</p>";
+    
     //두번째 Paragrph
     message += "<p>";
     message += "<h1 style='background-color:red;color:white'>";
@@ -185,20 +186,20 @@ void loop() {
     message += String(b_red_current)?  "[안 눌림]":"[눌림]";
     message += "</h3>";
     message += "<h3>";
-    message += "REDled상태:";
-    message += String(rledState);
-    message += (rledState)? "[켜짐]":"[꺼짐]";
-    message += "</h3>";
-    //green
-    message += "<h3>";
     message += "GREENbutton상태:";
     message += String(b_green_current);
     message += String(b_green_current)?  "[안 눌림]":"[눌림]";
     message += "</h3>";
     message += "<h3>";
+    message += "REDled상태:";
+    message += String(rledState);
+    message += (rledState)? "[on]":"[off]";
+    message += "</h3>";
+    //green
+    message += "<h3>";
     message += "GREENled상태:";
     message += String(gledState);
-    message += (gledState)? "[켜짐]":"[꺼짐]";
+    message += (gledState)? "[on]":"[off]";
     message += "</h3>";
     //온도
     message += "<h3>";
@@ -216,7 +217,7 @@ void loop() {
     message += "<a href=\"/mc\"> Go to Main Control Page </a>";   //href = /mc
     
     message += "<br>";
-    message += "<a href=\"/ledbrightness.cgi\"> Go to Bright Control Page </a>";     
+    message += "<a href=\"/ledbright\"> Go to Bright Control Page </a>";     
     
     message += "</body>";
     message += "</html>";
@@ -378,7 +379,6 @@ void loop() {
     message += "GET방식으로 보내기";
     message += "<input type=\"submit\" value=\"보내기\">";
     message += "</h1>";
-    //message += "<input type=\"submit\" value=\"보내기\">";
     message += "</form>";
     message += "</p>";
     //post
@@ -398,40 +398,42 @@ void loop() {
     message += "<br>";
     message += "<h1 style='background-color:grey;color:white'>";
     message += "POST방식으로 보내기";
-    message += "</h1>";
     message += "<input type=\"submit\" value=\"보내기\">";
+    message += "</h1>";
     message += "</form>";
     message += "</p>";
     
     message += "<a href=\"/\">Go to Home Page</a>";    
     message += "<br>";
-    message += "<a href=\"/ledbrightness\">Go to Bright Control Page</a>";
+    message += "<a href=\"/ledbright\">Go to Bright Control Page</a>";
     message += "</body>";
     message += "</html>";
 
     webserver.send(200, "text/html; charset=utf-8", message);   //plain으로가 아니라 html로 문서를 보낸다
   }
   void handleONOFF() {
-    if(webserver.argName(0) == "rLEDcontrol") {
-      int state = webserver.arg(0).toInt();   //문자열로 들어온 전달인수값을 정수형으로
-      if(state) {   //1일시에는 불을 켜라
-        digitalWrite(rledPin, HIGH);
-      }else{  //0일시에는 불을 꺼라
-        digitalWrite(rledPin, LOW);
-      }
-    }
-    rledState = digitalRead(rledPin); //현재상태 가지고옴
-    
-    if(webserver.argName(0) == "gLEDcontrol") {
-      int state = webserver.arg(0).toInt();   //문자열로 들어온 전달인수값을 정수형으로
-      if(state) {   //1일시에는 불을 켜라
-        digitalWrite(gledPin, HIGH);
-      }else{  //0일시에는 불을 꺼라
-        digitalWrite(gledPin, LOW);
-      }
-    }
-    gledState = digitalRead(gledPin);   //현재상태 가지고옴
-    
+     //red
+     for(uint8_t i=0; i<webserver.args(); i++) {
+      if(webserver.argName(i) == "rLEDcontrol") {
+        int state = webserver.arg(i).toInt();
+        if(state) {
+          digitalWrite(rledPin, HIGH);
+        }else{ 
+          digitalWrite(rledPin, LOW);
+        }
+        rledState = digitalRead(rledPin);
+    //green
+      }else if(webserver.argName(i) == "gLEDcontrol") {
+        int state = webserver.arg(i).toInt();
+        if(state) {
+          digitalWrite(gledPin, HIGH);
+        }else{ 
+          digitalWrite(gledPin, LOW);
+        }
+        gledState = digitalRead(gledPin);
+     }
+     }
+     
     String message ="";
     message += "<html>";
     message += "<head>";
@@ -443,19 +445,19 @@ void loop() {
     message += String(rledState);
     message += (rledState)? "[ON]":"[OFF]";  //1이면 ON 0이면 0FF
     message += "</h2>";
-    message += "<br>";
     //green
     message += "<h2>";
     message += "GREENled 현재 상태:";
     message += String(gledState);
     message += (gledState)? "[ON]":"[OFF]";  //1이면 ON 0이면 0FF
     message += "</h2>";
+    
     message += "<br>";
     message += "<a href=\"/\">Go to Home Page</a>";  //홈페이지 가는 링크추가
     message += "<br>";
     message += "<a href=\"/mc\">Go to MainControl Page</a>";  //mc로 가는 링크
     message += "<br>";
-    message += "<a href=\"/ledbrightness\">Go to Bright Control Page</a>";
+    message += "<a href=\"/ledbright\">Go to Bright Control Page</a>";
     
     message += "</body>";
     message += "</html>";
@@ -463,7 +465,7 @@ void loop() {
     
     webserver.send(200, "text/html; charset=utf-8", message);
   } 
-  /*   
+     
   void handleBrightness() {
     showBrightnessPage();
   }
@@ -474,29 +476,47 @@ void loop() {
     message += "<head>";
     message += "</head>";
     message += "<body>";
+    message += "<h2 style='background-color:green;color:white'>";
+    message += "===LED 밝기 상태===";
+    message += "</h2>";
     //===new
     //red
-    message += "REDled brightness(0:OFF-Dark~Bright-255:ON) is ";
-    message += rledBrightness;
+    message += "<b>REDled brightness(0:OFF-Dark~Bright-255:ON) is </b>";
+    message += rbrightness;
     //green
     message += "<br>";
-    message += "GREENLled brightness(0:OFF-Dark~Bright-255:ON) is ";
-    message += gledBrightness;
-    //red
-    message += "<br>";
+    message += "<b>GREENLled brightness(0:OFF-Dark~Bright-255:ON) is </b>";
+    message += gbrightness;
+    message += "<h2 style='background-color:red;color:white'>";
+    message += "===LED 밝기 제어===";
+    message += "</h2>";
+    //get
     message += "<form method=\"get\" action=\"/ledbrightness.cgi\">";   //get방식으로 보내 action=작동시켜 
+    //message += "<br>";
+    message += "rBrightness";
+    message += "<input type=\"text\" name=\"rbrightness\">";
     message += "<br>";
-    message += "REDBrightness";
-    message += "<input type=\"text\" name=\"redbrightness\">";
-    //green
+    message += "gBrightness";
+    message += "<input type=\"text\" name=\"gbrightness\">";
     message += "<br>";
-    message += "<form method=\"get\" action=\"/ledbrightness.cgi\">";   //get방식으로 보내 action=작동시켜 
-    message += "<br>";
-    message += "GREENBrightness";
-    message += "<input type=\"text\" name=\"greenbrightness\">";
-    
-    message += "<br>";
+    message += "<h1 style='background-color:grey;color:white'>";
+    message += "GET방식으로 보내기";
     message += "<input type=\"submit\" value=\"보내기\">";
+    message += "</h1>";
+    message += "</form>";
+    //post
+    message += "<form method=\"post\" action=\"/ledbrightness.cgi\">";   //get방식으로 보내 action=작동시켜 
+    message += "<br>";
+    message += "rBrightness";
+    message += "<input type=\"text\" name=\"rbrightness\">";
+    message += "<br>";
+    message += "gBrightness";
+    message += "<input type=\"text\" name=\"gbrightness\">";
+    message += "<br>";
+    message += "<h1 style='background-color:grey;color:white'>";
+    message += "POST방식으로 보내기";
+    message += "<input type=\"submit\" value=\"보내기\">";
+    message += "</h1>";
     message += "</form>";
     
     message += "<br>";
@@ -513,19 +533,19 @@ void loop() {
   //red
   void handleBrightControl() {
     //red
-    if(webserver.argName(0) == "REDbrightness") {
-      int state = webserver.arg(0).toInt();   //문자열로 들어온 전달인수값을 정수형으로
-      rledBrightness = state;
-      analogWrite(rledPin, rledBrightness);  //pwm신호를 출력
-      showBrightnessPage();
-    }
+     for(uint8_t i=0; i<webserver.args(); i++) {
+      if(webserver.argName(i) == "rbrightness") {
+        int rled = webserver.arg(i).toInt();
+        rbrightness = rled;
+        analogWrite(rledPin, rbrightness);
+        showBrightnessPage();
+      }
     //green
-    if(webserver.argName(1) == "GREENbrightness") {
-      int state = webserver.arg(1).toInt();   //문자열로 들어온 전달인수값을 정수형으로
-      gledBrightness = state;
-      analogWrite(gledPin, gledBrightness);  //pwm신호를 출력
-      showBrightnessPage();
-    }
+    else if(webserver.argName(i) == "gbrightness") {
+        int gled = webserver.arg(i).toInt();
+        gbrightness = gled;
+        analogWrite(gledPin, gbrightness);
+        showBrightnessPage();
+      }
   }
-  */
-  
+  }

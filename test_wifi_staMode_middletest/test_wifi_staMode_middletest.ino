@@ -496,7 +496,7 @@ void loop() {
     //green
     message += "<br>";
     message += "<b>GREENLled brightness(0:OFF-Dark~Bright-255:ON) is </b>";
-    message += gbrightness;
+    message += gled;
     message += "<h2 style='background-color:red;color:white'>";
     message += "===LED 밝기 제어===";
     message += "</h2>";
@@ -542,14 +542,13 @@ void loop() {
         int rled = webserver.arg(i).toInt();
         rbrightness = rled;
         analogWrite(rledPin, rbrightness);
-        showBrightnessPage();
       }
     //green
     else if(webserver.argName(i) == "gbrightness") {
         int gled = webserver.arg(i).toInt();
         gbrightness = gled;
-        analogWrite(gledPin, gbrightness);
-        showBrightnessPage();
+        analogWrite(rledPin, rbrightness);
       }
   }
+    showBrightnessPage();
 }

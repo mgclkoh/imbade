@@ -133,6 +133,9 @@ void loop() {
     message += "<head>";
     message += "</head>";
     message += "<body>";
+    message += "<h1 style='background-color:grey;color:white'>";
+    message += "===학번:2020041018-반:1-이름:Koh_myeong_chol===";
+    message += "</h1>";
     //첫번째 Paragraph
     message += "<p>";
     message += "<h1 style='background-color:blue;color:white'>";
@@ -284,7 +287,6 @@ void loop() {
           gledState = digitalRead(gledPin);
         }
       }
-      //if(webser "gledbright"
     }
     String message ="";
     message += "<html>";
@@ -375,10 +377,7 @@ void loop() {
     message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi?/Gledstatus=0 붙여 보내라.
     
     message += "<br>";
-    message += "<h1 style='background-color:grey;color:white'>";
-    message += "GET방식으로 보내기";
-    message += "<input type=\"submit\" value=\"보내기\">";
-    message += "</h1>";
+   message += "<input type=\"submit\" value=\"GET방식으로 보내기\" style=\"width:300px; font-size:27px; color:white; background-color: grey;\">";
     message += "</form>";
     message += "</p>";
     //post
@@ -396,10 +395,21 @@ void loop() {
     message += "<input type=\"radio\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //radio button클릭시 /led.cgi 붙여 보내라.
     
     message += "<br>";
-    message += "<h1 style='background-color:grey;color:white'>";
-    message += "POST방식으로 보내기";
-    message += "<input type=\"submit\" value=\"보내기\">";
-    message += "</h1>";
+    message += "<input type=\"submit\" value=\"POST방식으로 보내기\" style=\"width:300px; font-size:27px; color:white; background-color: grey;\">";
+
+    message += "<form method=\"post\" action=\"/led.cgi\">";  //get방식으로 보낸후 url뒤에 /led.cgi붙여라.
+    message += "<br>";
+    message += "<input type=\"checkbox\" name=\"rLEDcontrol\" value=\"1\">REDled Turn ON!";  //check button클릭시 /led.cgi 붙여 보내라.
+    message += "<br>";
+    message += "<input type=\"checkbox\" name=\"rLEDcontrol\" value=\"0\">REDled Turn OFF!";  //check button클릭시 /led.cgi 붙여 보내라.
+    //green
+    message += "<br>";
+    message += "<input type=\"checkbox\" name=\"gLEDcontrol\" value=\"1\">GREENled Turn ON!";  //check button클릭시 /led.cgi 붙여 보내라.
+    message += "<br>";
+    message += "<input type=\"checkbox\" name=\"gLEDcontrol\" value=\"0\">GREENled Turn OFF!";  //check button클릭시 /led.cgi 붙여 보내라.
+    
+    message += "<br>";
+    message += "<input type=\"submit\" value=\"POST방식으로 보내기\" style=\"width:300px; font-size:27px; color:white; background-color: grey;\">";
     message += "</form>";
     message += "</p>";
     
@@ -499,10 +509,7 @@ void loop() {
     message += "gBrightness";
     message += "<input type=\"text\" name=\"gbrightness\">";
     message += "<br>";
-    message += "<h1 style='background-color:grey;color:white'>";
-    message += "GET방식으로 보내기";
-    message += "<input type=\"submit\" value=\"보내기\">";
-    message += "</h1>";
+    message += "<input type=\"submit\" value=\"GET방식으로 보내기\" style=\"width:300px; font-size:27px; color:white; background-color: grey;\">";
     message += "</form>";
     //post
     message += "<form method=\"post\" action=\"/ledbrightness.cgi\">";   //get방식으로 보내 action=작동시켜 
@@ -513,10 +520,7 @@ void loop() {
     message += "gBrightness";
     message += "<input type=\"text\" name=\"gbrightness\">";
     message += "<br>";
-    message += "<h1 style='background-color:grey;color:white'>";
-    message += "POST방식으로 보내기";
-    message += "<input type=\"submit\" value=\"보내기\">";
-    message += "</h1>";
+    message += "<input type=\"submit\" value=\"POST방식으로 보내기\" style=\"width:300px; font-size:27px; color:white; background-color: grey;\">";
     message += "</form>";
     
     message += "<br>";
@@ -548,4 +552,4 @@ void loop() {
         showBrightnessPage();
       }
   }
-  }
+}
